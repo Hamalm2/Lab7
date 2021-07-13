@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ghost
+  labels:
+    app: ghost
+    component: "frontend"
+spec:
+  serviceName: ghost
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: ghost
+      component: frontend
+
+  template:
+    metadata:
+      labels:
+        app: ghost
+        component: frontend
+
+    spec:
+      containers:
+      - name: ghost
+        image: "ghost:1.24.8-alpine"
+        imagePullPolicy: "Always"
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 2368
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 2368
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+
+        ports:
+        - name: web
+          protocol: TCP
+          containerPort: 2368
+
+        volumeMounts:
+        - mountPath: /var/lib/ghost/content
+          name: content
+
+  volumeClaimTemplates:
+  - metadata:
+      name: content
+      namespace: dev
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: standard
+      resources:
+        requests:
+          storage: 500Mi
