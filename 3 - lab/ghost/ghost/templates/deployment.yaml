@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: ghost
-        image: {{ .Values.dockerImage }}
+        image: {{ .Values.dockerImage }}:{{ .Values.dockerTag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
 
         readinessProbe:
